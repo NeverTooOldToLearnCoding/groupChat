@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang = "en">
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Group Chat</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script type="text/javascript" src="/socket.io/socket.io.js"></script>
+
+    <script type ="text/javascript">
+
+
+
+        $(document).ready(function (){
+
+            var socket = io(); //1
+            //connects sockets 
+
+            //function to broadcast a global message when a new user joins to all sockets
+            var name = prompt("Please enter your name:");
+            
+            socket.emit("got_a_new_user", {data:name});
+
+            socket.on('new_user', function(data){
+                // data.preventDefault();
+                console.log("Sending Server this name: "+ name);
+                console.log("Received global broadcast for new user: "+ data);
+
+
+                $("p").html(data)
+            });
+
+            //function to send message to all users
+            socket.on("messageToAll", function(data){
+
+                console.log("Message received from Server to broadcast to all: "+ data);
+                $("p").html(data);
+
+            });
+
+            $( "#trigger" ).submit(function (e){
+                e.preventDefault(); //prevents page from refreshing
+
+                var a = "<p>" + name+": " + $('#message').val() + "</p>"
+                console.log("This is the message being sent from client: " + a);
+                socket.emit('message',{data:a});
+
+            });            
+
+         })
+    </script>
+<style>
+
+    .chatroom{
+        width:90%;
+        height:500px;
+        outline: 2px solid black;
+        margin-top: 3%;
+    }
+
+    .chatbox{
+        width:90%;
+        margin-top: 3%;
+        display: inline-block;
+    }
+
+    .message{
+        width: 100%;
+    }
+
+</style>
+
+</head>
+
+<body>
+
+<h><u>Conversation Board</u></h>
+
+<div class = "chatroom">
+<!-- adds message to p tag -->
+<p></p>
+
+</div>
+
+<div class = "chatbox">
+
+    <form id ="trigger">
+        <input id = "message" type="text" name="message"><br>
+        <input type="submit" value="Send">
+    </form>
+
+</div>
+
+</body>
+</html>
